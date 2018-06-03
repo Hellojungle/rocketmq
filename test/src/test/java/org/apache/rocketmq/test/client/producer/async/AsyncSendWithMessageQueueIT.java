@@ -29,6 +29,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import static com.google.common.truth.Truth.assertThat;
 
 public class AsyncSendWithMessageQueueIT extends BaseConf {
@@ -80,5 +84,35 @@ public class AsyncSendWithMessageQueueIT extends BaseConf {
             .containsExactlyElementsIn(producer.getAllMsgBody());
 
         VerifyUtils.verifyMessageQueueId(queueId, consumer.getListener().getAllOriginMsg());
+        producer.clearMsg();
+        consumer.clearMsg();
+        producer.getSuccessSendResult().clear();
+    }
+    @Test
+    public void testAsyncSendWithMQMultiThread() {
+        final int msgSize = 5;
+        final int queueId = 0;
+        final RMQNormalConsumer consumer = getConsumer(nsAddr, topic, "*", new RMQNormalListener());
+        final MessageQueue mq = new MessageQueue(topic, broker1Name, queueId);
+
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+
+        for (int i = 0; i < 2; i++) {
+            executor.submit(new Runnable() {
+                @Override
+                public void run() {
+                    producer.asyncSend(msgSize, mq);
+
+                }
+            });
+        }
+
+        producer.waitForResponse(10 * 1000);
+
+        System.out.println(producer.getSuccessMsgCount());
+
+        assertThat(producer.getSuccessMsgCount()).isEqualTo(msgSize*2);
+
+        executor.shutdown();
     }
 }
