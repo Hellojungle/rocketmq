@@ -249,7 +249,7 @@ public class DefaultMQProducerTest {
 
     @Test
     public void testSetCallbackExecutor() throws MQClientException {
-        String producerGroupTemp = producerGroupPrefix + System.currentTimeMillis();
+        String producerGroupTemp = producerGroupPrefix + "testSetCallbackExecutor" + System.currentTimeMillis();
         producer = new DefaultMQProducer(producerGroupTemp);
         producer.setNamesrvAddr("127.0.0.1:9876");
         producer.start();
