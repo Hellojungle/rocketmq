@@ -192,10 +192,12 @@ class LocalMessageCache implements ServiceLifecycle {
                 }
 
                 try {
-                    rocketmqPullConsumer.sendMessageBack(msg, 3);
-                    log.info("Send expired msg back. topic={}, msgId={}, storeHost={}, queueId={}, queueOffset={}",
-                        msg.getTopic(), msg.getMsgId(), msg.getStoreHost(), msg.getQueueId(), msg.getQueueOffset());
-                    ack(mq, pq, msg);
+                    if (msg != null) {
+                        rocketmqPullConsumer.sendMessageBack(msg, 3);
+                        log.info("Send expired msg back. topic={}, msgId={}, storeHost={}, queueId={}, queueOffset={}",
+                            msg.getTopic(), msg.getMsgId(), msg.getStoreHost(), msg.getQueueId(), msg.getQueueOffset());
+                        ack(mq, pq, msg);
+                    }
                 } catch (Exception e) {
                     log.error("Send back expired msg exception", e);
                 }

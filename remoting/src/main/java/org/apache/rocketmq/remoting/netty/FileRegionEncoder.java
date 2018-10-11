@@ -74,5 +74,7 @@ public class FileRegionEncoder extends MessageToByteEncoder<FileRegion> {
             }
             msg.transferTo(writableByteChannel, transferred);
         }
+
+        writableByteChannel.close();
     }
 }
